@@ -488,7 +488,7 @@ main{max-width:1240px;margin:0 auto;padding:44px 32px;}
       <button class="modal-close" onclick="closeModal('register-modal')">&#10005;</button>
     </div>
     <div class="hcp-info">
-      <strong>Scramble handicap formula:</strong> Team handicap = <strong>(0.35 × lower handicap) + (0.15 × higher handicap)</strong>. The team with the lowest resulting handicap plays at scratch; all others receive the difference as free strokes distributed to the hardest holes first.
+      <strong>Scramble handicap formula:</strong> Team handicap = <strong>(0.35 × lower individual HCP) + (0.15 × higher individual HCP)</strong>. This is rounded to the nearest whole number to determine how many strokes the team receives against the course, distributed hole-by-hole from hardest to easiest.
     </div>
     <div class="form-grid-3" style="margin-bottom:16px;">
       <div class="form-group" style="grid-column:1/3;"><label>Team Name</label><input type="text" id="reg-team" placeholder="e.g. Team Eagles"></div>
@@ -690,17 +690,22 @@ function toPar(t){
   t.scores.forEach((s,i)=>{ if(s!=null){g+=s;p+=PARS[i];} });
   return g-p;
 }
-function calcStrokes(team){
-  if(!teams.length) return 0;
-  const minHcp=Math.min(...teams.map(t=>t.combinedHcp||0));
-  return Math.max(0,Math.round((team.combinedHcp||0)-minHcp));
+// Team handicap = (0.35 × lower individual HCP) + (0.15 × higher individual HCP)
+// combinedHcp IS the number of strokes the team gets against the course.
+// We recalculate it live from hcp1/hcp2 so edits always reflect correctly.
+function teamHandicap(t){
+  const h1=t.hcp1||0, h2=t.hcp2||0;
+  return parseFloat((0.35*Math.min(h1,h2) + 0.15*Math.max(h1,h2)).toFixed(1));
 }
+// Net to par = gross to par minus team handicap strokes (rounded to whole number)
+function netToPar(t){ return toPar(t) - Math.round(teamHandicap(t)); }
+// calcStrokes returns whole strokes for the stroke-hole dot display
+function calcStrokes(team){ return Math.round(teamHandicap(team)); }
 function strokesPerHole(team){
   const s=calcStrokes(team), result=Array(18).fill(false);
   for(let i=1;i<=s&&i<=18;i++){ const idx=STROKE_INDEX.indexOf(i); if(idx>=0)result[idx]=true; }
   return result;
 }
-function netToPar(t){ return toPar(t)-calcStrokes(t); }
 function rel(n){ return n===0?'E':(n>0?'+'+n:''+n); }
 function relCls(n){ return n<=-2?'s-eagle':n<0?'s-under':n===0?'s-even':'s-over'; }
 
@@ -733,9 +738,9 @@ window.updateCombinedHcp=function(){
   if(!isNaN(h1)&&!isNaN(h2)){
     const low=Math.min(h1,h2), high=Math.max(h1,h2);
     const c=(0.35*low + 0.15*high).toFixed(1);
-    document.getElementById('combined-hcp-val').textContent=c+' (0.35 × '+low.toFixed(1)+' + 0.15 × '+high.toFixed(1)+')';
+    document.getElementById('combined-hcp-val').textContent=`${c} (0.35 × ${low.toFixed(1)} + 0.15 × ${high.toFixed(1)}) → ${Math.round(c)} stroke${Math.round(c)!==1?'s':''}`;
     box.style.display='block';
-  } else if(!isNaN(h1)||!isNaN(h2)){
+  } else {
     box.style.display='none';
   }
 };
@@ -788,12 +793,14 @@ window.loadTeamScores=function(){
   document.getElementById('sm-title').textContent=t.name;
   document.getElementById('sm-sub').textContent=t.p1+' & '+t.p2+' — Washington Duke Golf Course';
   const strokes=calcStrokes(t);
+  const hcp=teamHandicap(t);
   const hcpBox=document.getElementById('hcp-strokes-display');
   hcpBox.style.display='block';
+  const low=Math.min(t.hcp1||0,t.hcp2||0), high=Math.max(t.hcp1||0,t.hcp2||0);
   if(strokes>0){
-    hcpBox.innerHTML=`<strong>Handicap Strokes:</strong> This team receives <strong>${strokes} stroke${strokes!==1?'s':''}</strong> based on their combined handicap of ${(t.combinedHcp||0).toFixed(1)}. Stroke holes are marked with a <span style="display:inline-block;width:8px;height:8px;background:var(--gold);border-radius:50%;vertical-align:middle;"></span> dot.`;
+    hcpBox.innerHTML=`<strong>Handicap Strokes:</strong> Team HCP = (0.35 × ${low.toFixed(1)}) + (0.15 × ${high.toFixed(1)}) = <strong>${hcp.toFixed(1)} → ${strokes} stroke${strokes!==1?'s':''}</strong>. Stroke holes are marked with a <span style="display:inline-block;width:8px;height:8px;background:var(--gold);border-radius:50%;vertical-align:middle;"></span> dot.`;
   } else {
-    hcpBox.innerHTML=`<strong>Handicap Strokes:</strong> This team plays at scratch — no strokes given.`;
+    hcpBox.innerHTML=`<strong>Handicap Strokes:</strong> Team HCP = (0.35 × ${low.toFixed(1)}) + (0.15 × ${high.toFixed(1)}) = <strong>${hcp.toFixed(1)}</strong> — rounds to 0 strokes.`;
   }
   buildScorecardTable(t);
   liveUpdate();
@@ -919,7 +926,7 @@ function renderLeaderboard(){
   const useNet=document.getElementById('lb-view')?.value==='net';
   let data=[...teams]
     .filter(t=>t.name.toLowerCase().includes(q)||t.p1.toLowerCase().includes(q)||t.p2.toLowerCase().includes(q))
-    .map(t=>({...t,_thru:thru(t),_gross:grossScore(t),_tp:toPar(t),_net:netToPar(t),_strokes:calcStrokes(t)}))
+    .map(t=>({...t,_thru:thru(t),_gross:grossScore(t),_tp:toPar(t),_net:netToPar(t),_strokes:calcStrokes(t),_hcp:teamHandicap(t)}))
     .sort((a,b)=>{
       const af=a._thru===18,bf=b._thru===18;
       if(af&&!bf)return-1;if(!af&&bf)return 1;
@@ -940,11 +947,15 @@ function renderLeaderboard(){
       return`<div class="hc ${c}" title="Hole ${idx+1}: ${s}">${s}${sph[idx]?`<span class="hc-stroke-dot"></span>`:''}</div>`;
     }).join('');
     const scoreTp=useNet?t._net:t._tp;
-    const strokeTag=t._strokes>0&&!useNet?`<span class="stroke-tag">+${t._strokes} strokes</span>`:'';
+    const hcp=teamHandicap(t);
+    const strokeTag=hcp>0&&!useNet?`<span class="stroke-tag">${hcp.toFixed(1)} HCP strokes</span>`:'';
+    const netLabel=useNet
+      ?`<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Net &bull; Gross: ${rel(t._tp)}</div>`
+      :`<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Gross &bull; Net: ${rel(t._net)}</div>`;
     return`<tr>
       <td>${rnk}</td>
-      <td><span class="t-name-main">${t.name}</span><span class="t-players-sub">${t.p1} &amp; ${t.p2} &bull; HCP ${(t.combinedHcp||0).toFixed(1)}</span>${strokeTag}</td>
-      <td><span class="score-pill ${relCls(scoreTp)}">${rel(scoreTp)}</span><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">${useNet?'Net':'Gross'}</div></td>
+      <td><span class="t-name-main">${t.name}</span><span class="t-players-sub">${t.p1} &amp; ${t.p2} &bull; HCP ${hcp.toFixed(1)}</span>${strokeTag}</td>
+      <td><span class="score-pill ${relCls(scoreTp)}">${rel(scoreTp)}</span>${netLabel}</td>
       <td style="font-weight:600;color:var(--text-mid);">${t._thru===0?'–':t._thru===18?'F':t._thru}</td>
       <td style="font-family:'Playfair Display',serif;font-size:17px;">${t._thru>0?t._gross:'–'}</td>
       <td><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><div class="hole-cards">${card}</div><button class="btn btn-sm btn-outline" onclick="openScoreModal('${t.id}')" style="flex-shrink:0;">✏ Score</button><button class="btn btn-sm btn-outline" onclick="openTeamEdit('${t.id}')" style="flex-shrink:0;">✏ Team</button><button class="btn btn-sm btn-outline btn-delete" onclick="deleteTeam('${t.id}')" style="flex-shrink:0;">✕</button></div></td>
@@ -958,7 +969,7 @@ function renderTeamStats(){
   const s=document.getElementById('ts-sort')?.value||'score';
   let data=teams.filter(t=>t.name.toLowerCase().includes(q)||t.p1.toLowerCase().includes(q)||t.p2.toLowerCase().includes(q))
     .map(t=>{
-      const th2=thru(t),tp2=toPar(t),net2=netToPar(t);
+      const th2=thru(t),tp2=toPar(t),net2=netToPar(t),strokes=calcStrokes(t);
       const firMade=t.fir.filter((v,i)=>!PAR3_HOLES.has(i+1)&&v===true).length;
       const girMade=t.gir.filter(v=>v===true).length;
       const puttsArr=t.putts.filter(v=>v!=null&&v>=0);
@@ -1271,6 +1282,110 @@ window.deleteTeam=async function(id){
   }catch(e){syncBar('error');toast('Error deleting team.');}
 };
 
+// ── CTP EDIT / DELETE ──
+window.openCTPEdit=function(id){
+  const e=ctpData.find(x=>x.id===id);
+  if(!e){toast('Entry not found.');return;}
+  document.getElementById('ctp-edit-id').value=e.id;
+  document.getElementById('ctp-edit-player').value=e.player;
+  document.getElementById('ctp-edit-team').value=e.team||'';
+  document.getElementById('ctp-edit-hole').value=e.hole;
+  document.getElementById('ctp-edit-dist').value=e.dist;
+  openModal('ctp-edit-modal');
+};
+window.saveCTPEdit=async function(){
+  const id=document.getElementById('ctp-edit-id').value;
+  const player=document.getElementById('ctp-edit-player').value.trim();
+  const team=document.getElementById('ctp-edit-team').value.trim();
+  const hole=document.getElementById('ctp-edit-hole').value;
+  const dist=parseFloat(document.getElementById('ctp-edit-dist').value);
+  if(!player||!hole||isNaN(dist)){toast('Please fill all fields.');return;}
+  await saveCTP({id,player,team,hole,dist});
+  closeModal('ctp-edit-modal');
+  toast('Entry updated.');
+};
+window.deleteCTP=async function(id){
+  if(!confirm('Delete this closest-to-pin entry?'))return;
+  syncBar('syncing');
+  try{
+    await deleteDoc(doc(db,'ctp',String(id)));
+    syncBar('synced');setTimeout(()=>syncBar(''),1500);
+    toast('Entry deleted.');
+  }catch(e){syncBar('error');toast('Error deleting entry.');}
+};
+
+// ── LONGEST DRIVE EDIT / DELETE ──
+window.openLDEdit=function(id){
+  const e=ldData.find(x=>x.id===id);
+  if(!e){toast('Entry not found.');return;}
+  document.getElementById('ld-edit-id').value=e.id;
+  document.getElementById('ld-edit-player').value=e.player;
+  document.getElementById('ld-edit-team').value=e.team||'';
+  document.getElementById('ld-edit-hole').value=e.hole;
+  document.getElementById('ld-edit-dist').value=e.dist;
+  openModal('ld-edit-modal');
+};
+window.saveLDEdit=async function(){
+  const id=document.getElementById('ld-edit-id').value;
+  const player=document.getElementById('ld-edit-player').value.trim();
+  const team=document.getElementById('ld-edit-team').value.trim();
+  const hole=document.getElementById('ld-edit-hole').value;
+  const dist=parseInt(document.getElementById('ld-edit-dist').value);
+  if(!player||!hole||isNaN(dist)){toast('Please fill all fields.');return;}
+  await saveLD({id,player,team,hole,dist});
+  closeModal('ld-edit-modal');
+  toast('Entry updated.');
+};
+window.deleteLD=async function(id){
+  if(!confirm('Delete this longest drive entry?'))return;
+  syncBar('syncing');
+  try{
+    await deleteDoc(doc(db,'ld',String(id)));
+    syncBar('synced');setTimeout(()=>syncBar(''),1500);
+    toast('Entry deleted.');
+  }catch(e){syncBar('error');toast('Error deleting entry.');}
+};
+
+// ── TEAM EDIT / DELETE ──
+window.openTeamEdit=function(id){
+  const t=teams.find(x=>x.id===id);
+  if(!t){toast('Team not found.');return;}
+  document.getElementById('team-edit-id').value=t.id;
+  document.getElementById('team-edit-name').value=t.name;
+  document.getElementById('team-edit-p1').value=t.p1;
+  document.getElementById('team-edit-p2').value=t.p2;
+  document.getElementById('team-edit-hcp1').value=t.hcp1||0;
+  document.getElementById('team-edit-hcp2').value=t.hcp2||0;
+  openModal('team-edit-modal');
+};
+window.saveTeamEdit=async function(){
+  const id=document.getElementById('team-edit-id').value;
+  const name=document.getElementById('team-edit-name').value.trim();
+  const p1=document.getElementById('team-edit-p1').value.trim();
+  const p2=document.getElementById('team-edit-p2').value.trim();
+  const hcp1=parseFloat(document.getElementById('team-edit-hcp1').value)||0;
+  const hcp2=parseFloat(document.getElementById('team-edit-hcp2').value)||0;
+  if(!name||!p1||!p2){toast('Please fill in all fields.');return;}
+  if(teams.find(t=>t.id!==id&&t.name.toLowerCase()===name.toLowerCase())){toast('Another team already has that name.');return;}
+  const existing=teams.find(t=>t.id===id);
+  if(!existing){toast('Team not found.');return;}
+  const updated={...existing,name,p1,p2,hcp1,hcp2,
+    combinedHcp:parseFloat((0.35*Math.min(hcp1,hcp2)+0.15*Math.max(hcp1,hcp2)).toFixed(1))};
+  await saveTeam(updated);
+  closeModal('team-edit-modal');
+  toast(name+' updated!');
+};
+window.deleteTeam=async function(id){
+  const t=teams.find(x=>x.id===id);
+  if(!confirm('Delete '+(t?t.name:'this team')+'? This will remove all their scores.'))return;
+  syncBar('syncing');
+  try{
+    await deleteDoc(doc(db,'teams',String(id)));
+    syncBar('synced');setTimeout(()=>syncBar(''),1500);
+    toast('Team deleted.');
+  }catch(e){syncBar('error');toast('Error deleting team.');}
+};
+
 // ── BOOT ──
 initListeners();
 setTimeout(()=>{
@@ -1350,7 +1465,7 @@ setTimeout(()=>{
       <div class="form-group" style="grid-column:1/3;"><label>Team Name</label><input type="text" id="team-edit-name" placeholder="e.g. Team Eagles"></div>
       <div class="form-group"><label>P1 Handicap</label><input type="number" id="team-edit-hcp1" placeholder="e.g. 14" min="0" max="54" step="0.1"></div>
     </div>
-    <div class="form-grid-3" style="margin-bottom:20px;">
+    <div class="form-grid-3" style="margin-bottom:24px;">
       <div class="form-group"><label>Player 1 Name</label><input type="text" id="team-edit-p1" placeholder="Full name"></div>
       <div class="form-group"><label>Player 2 Name</label><input type="text" id="team-edit-p2" placeholder="Full name"></div>
       <div class="form-group"><label>P2 Handicap</label><input type="number" id="team-edit-hcp2" placeholder="e.g. 10" min="0" max="54" step="0.1"></div>
