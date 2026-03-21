@@ -488,7 +488,7 @@ main{max-width:1240px;margin:0 auto;padding:44px 32px;}
       <button class="modal-close" onclick="closeModal('register-modal')">&#10005;</button>
     </div>
     <div class="hcp-info">
-      <strong>How handicap strokes work:</strong> The team with the lowest combined handicap plays at scratch. Every other team receives the difference as free strokes, distributed to the hardest holes first. Net scores appear alongside gross on the leaderboard.
+      <strong>Scramble handicap formula:</strong> Team handicap = <strong>(0.35 × lower handicap) + (0.15 × higher handicap)</strong>. The team with the lowest resulting handicap plays at scratch; all others receive the difference as free strokes distributed to the hardest holes first.
     </div>
     <div class="form-grid-3" style="margin-bottom:16px;">
       <div class="form-group" style="grid-column:1/3;"><label>Team Name</label><input type="text" id="reg-team" placeholder="e.g. Team Eagles"></div>
@@ -584,88 +584,6 @@ main{max-width:1240px;margin:0 auto;padding:44px 32px;}
 
 <div class="toast" id="toast"></div>
 
-<!-- CTP EDIT MODAL -->
-<div class="modal-overlay" id="ctp-edit-modal">
-  <div class="modal" style="max-width:500px;">
-    <div class="modal-header">
-      <div><h3>Edit Entry</h3><div class="modal-sub-line">Closest to the Pin</div></div>
-      <button class="modal-close" onclick="closeModal('ctp-edit-modal')">&#10005;</button>
-    </div>
-    <input type="hidden" id="ctp-edit-id">
-    <div class="form-grid-2" style="margin-bottom:16px;">
-      <div class="form-group"><label>Player Name</label><input type="text" id="ctp-edit-player" placeholder="Full name"></div>
-      <div class="form-group"><label>Team</label><input type="text" id="ctp-edit-team" placeholder="Team name"></div>
-    </div>
-    <div class="form-grid-2" style="margin-bottom:20px;">
-      <div class="form-group"><label>Hole</label>
-        <select id="ctp-edit-hole"><option value="">Select hole</option><option value="4">Hole 4</option></select>
-      </div>
-      <div class="form-group"><label>Distance (ft)</label><input type="number" id="ctp-edit-dist" placeholder="e.g. 8.5" min="0" step="0.1"></div>
-    </div>
-    <div style="display:flex;gap:12px;justify-content:flex-end;">
-      <button class="btn btn-outline" onclick="closeModal('ctp-edit-modal')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveCTPEdit()">Save Changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- LONGEST DRIVE EDIT MODAL -->
-<div class="modal-overlay" id="ld-edit-modal">
-  <div class="modal" style="max-width:500px;">
-    <div class="modal-header">
-      <div><h3>Edit Entry</h3><div class="modal-sub-line">Longest Drive</div></div>
-      <button class="modal-close" onclick="closeModal('ld-edit-modal')">&#10005;</button>
-    </div>
-    <input type="hidden" id="ld-edit-id">
-    <div class="form-grid-2" style="margin-bottom:16px;">
-      <div class="form-group"><label>Player Name</label><input type="text" id="ld-edit-player" placeholder="Full name"></div>
-      <div class="form-group"><label>Team</label><input type="text" id="ld-edit-team" placeholder="Team name"></div>
-    </div>
-    <div class="form-grid-2" style="margin-bottom:20px;">
-      <div class="form-group"><label>Hole</label>
-        <select id="ld-edit-hole">
-          <option value="">Select hole</option>
-          <option value="1">Hole 1</option><option value="2">Hole 2</option><option value="3">Hole 3</option>
-          <option value="4">Hole 4</option><option value="5">Hole 5</option><option value="6">Hole 6</option>
-          <option value="7">Hole 7</option><option value="8">Hole 8</option><option value="9">Hole 9</option>
-          <option value="10">Hole 10</option><option value="11">Hole 11</option><option value="12">Hole 12</option>
-          <option value="13">Hole 13</option><option value="14">Hole 14</option><option value="15">Hole 15</option>
-          <option value="16">Hole 16</option><option value="17">Hole 17</option><option value="18">Hole 18</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Distance (yds)</label><input type="number" id="ld-edit-dist" placeholder="e.g. 285" min="0"></div>
-    </div>
-    <div style="display:flex;gap:12px;justify-content:flex-end;">
-      <button class="btn btn-outline" onclick="closeModal('ld-edit-modal')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveLDEdit()">Save Changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- TEAM EDIT MODAL -->
-<div class="modal-overlay" id="team-edit-modal">
-  <div class="modal" style="max-width:540px;">
-    <div class="modal-header">
-      <div><h3>Edit Team</h3><div class="modal-sub-line">Update team name, players, or handicaps</div></div>
-      <button class="modal-close" onclick="closeModal('team-edit-modal')">&#10005;</button>
-    </div>
-    <input type="hidden" id="team-edit-id">
-    <div class="form-grid-3" style="margin-bottom:16px;">
-      <div class="form-group" style="grid-column:1/3;"><label>Team Name</label><input type="text" id="team-edit-name" placeholder="e.g. Team Eagles"></div>
-      <div class="form-group"><label>P1 Handicap</label><input type="number" id="team-edit-hcp1" placeholder="e.g. 14" min="0" max="54" step="0.1"></div>
-    </div>
-    <div class="form-grid-3" style="margin-bottom:24px;">
-      <div class="form-group"><label>Player 1 Name</label><input type="text" id="team-edit-p1" placeholder="Full name"></div>
-      <div class="form-group"><label>Player 2 Name</label><input type="text" id="team-edit-p2" placeholder="Full name"></div>
-      <div class="form-group"><label>P2 Handicap</label><input type="number" id="team-edit-hcp2" placeholder="e.g. 10" min="0" max="54" step="0.1"></div>
-    </div>
-    <div style="display:flex;gap:12px;justify-content:flex-end;">
-      <button class="btn btn-outline" onclick="closeModal('team-edit-modal')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveTeamEdit()">Save Changes</button>
-    </div>
-  </div>
-</div>
-
 <!-- Firebase SDKs -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -685,10 +603,10 @@ const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 
 // ── CONSTANTS ──
-const PARS        = [4,3,5,4,4,3,4,5,4,4,4,3,5,4,3,4,5,4];
+const PARS        = [4,4,4,3,4,4,5,3,5,4,5,3,4,5,3,4,4,4];
 const COURSE_PAR  = 72;
 const STROKE_INDEX= [1,15,7,11,3,13,5,9,17,2,16,8,12,4,14,6,10,18];
-const PAR3_HOLES  = new Set([2,6,12,15]);
+const PAR3_HOLES  = new Set([4,8,12,15]);
 
 // ── IN-MEMORY STATE (kept in sync with Firestore) ──
 let teams    = [];
@@ -812,10 +730,13 @@ window.updateCombinedHcp=function(){
   const h1=parseFloat(document.getElementById('reg-hcp1').value);
   const h2=parseFloat(document.getElementById('reg-hcp2').value);
   const box=document.getElementById('combined-hcp-display');
-  if(!isNaN(h1)||!isNaN(h2)){
-    const c=(isNaN(h1)?0:h1)+(isNaN(h2)?0:h2);
-    document.getElementById('combined-hcp-val').textContent=c.toFixed(1);
+  if(!isNaN(h1)&&!isNaN(h2)){
+    const low=Math.min(h1,h2), high=Math.max(h1,h2);
+    const c=(0.35*low + 0.15*high).toFixed(1);
+    document.getElementById('combined-hcp-val').textContent=c+' (0.35 × '+low.toFixed(1)+' + 0.15 × '+high.toFixed(1)+')';
     box.style.display='block';
+  } else if(!isNaN(h1)||!isNaN(h2)){
+    box.style.display='none';
   }
 };
 
@@ -828,7 +749,8 @@ window.registerTeam=async function(){
   if(!name||!p1||!p2){ toast('Please fill in all fields.'); return; }
   if(teams.find(t=>t.name.toLowerCase()===name.toLowerCase())){ toast('Team name already exists.'); return; }
   const team={
-    id:Date.now().toString(), name, p1, p2, hcp1, hcp2, combinedHcp:hcp1+hcp2,
+    id:Date.now().toString(), name, p1, p2, hcp1, hcp2,
+    combinedHcp: parseFloat((0.35*Math.min(hcp1,hcp2) + 0.15*Math.max(hcp1,hcp2)).toFixed(1)),
     scores:Array(18).fill(null),
     fir:Array(18).fill(null),
     gir:Array(18).fill(null),
@@ -1118,114 +1040,14 @@ window.saveTeeTimeEdit=async function(){
   toast('Tee time updated.');
 };
 
-// ── CTP EDIT / DELETE ──
-window.openCTPEdit=function(id){
-  const e=ctpData.find(x=>x.id===id);
-  if(!e){toast('Entry not found.');return;}
-  document.getElementById('ctp-edit-id').value=e.id;
-  document.getElementById('ctp-edit-player').value=e.player;
-  document.getElementById('ctp-edit-team').value=e.team||'';
-  document.getElementById('ctp-edit-hole').value=e.hole;
-  document.getElementById('ctp-edit-dist').value=e.dist;
-  openModal('ctp-edit-modal');
-};
-
-window.saveCTPEdit=async function(){
-  const id=document.getElementById('ctp-edit-id').value;
-  const player=document.getElementById('ctp-edit-player').value.trim();
-  const team=document.getElementById('ctp-edit-team').value.trim();
-  const hole=document.getElementById('ctp-edit-hole').value;
-  const dist=parseFloat(document.getElementById('ctp-edit-dist').value);
-  if(!player||!hole||isNaN(dist)){toast('Please fill all fields.');return;}
-  await saveCTP({id,player,team,hole,dist});
-  closeModal('ctp-edit-modal');
-  toast('Entry updated.');
-};
-
-window.deleteCTP=async function(id){
-  if(!confirm('Delete this closest-to-pin entry?'))return;
+window.deleteTeeTime=async function(id){
+  if(!confirm('Delete this tee time group?'))return;
   syncBar('syncing');
   try{
-    await deleteDoc(doc(db,'ctp',String(id)));
-    syncBar('synced');setTimeout(()=>syncBar(''),1500);
-    toast('Entry deleted.');
-  }catch(e){syncBar('error');toast('Error deleting entry.');}
-};
-
-// ── LONGEST DRIVE EDIT / DELETE ──
-window.openLDEdit=function(id){
-  const e=ldData.find(x=>x.id===id);
-  if(!e){toast('Entry not found.');return;}
-  document.getElementById('ld-edit-id').value=e.id;
-  document.getElementById('ld-edit-player').value=e.player;
-  document.getElementById('ld-edit-team').value=e.team||'';
-  document.getElementById('ld-edit-hole').value=e.hole;
-  document.getElementById('ld-edit-dist').value=e.dist;
-  openModal('ld-edit-modal');
-};
-
-window.saveLDEdit=async function(){
-  const id=document.getElementById('ld-edit-id').value;
-  const player=document.getElementById('ld-edit-player').value.trim();
-  const team=document.getElementById('ld-edit-team').value.trim();
-  const hole=document.getElementById('ld-edit-hole').value;
-  const dist=parseInt(document.getElementById('ld-edit-dist').value);
-  if(!player||!hole||isNaN(dist)){toast('Please fill all fields.');return;}
-  await saveLD({id,player,team,hole,dist});
-  closeModal('ld-edit-modal');
-  toast('Entry updated.');
-};
-
-window.deleteLD=async function(id){
-  if(!confirm('Delete this longest drive entry?'))return;
-  syncBar('syncing');
-  try{
-    await deleteDoc(doc(db,'ld',String(id)));
-    syncBar('synced');setTimeout(()=>syncBar(''),1500);
-    toast('Entry deleted.');
-  }catch(e){syncBar('error');toast('Error deleting entry.');}
-};
-
-// ── TEAM EDIT / DELETE ──
-window.openTeamEdit=function(id){
-  const t=teams.find(x=>x.id===id);
-  if(!t){toast('Team not found.');return;}
-  document.getElementById('team-edit-id').value=t.id;
-  document.getElementById('team-edit-name').value=t.name;
-  document.getElementById('team-edit-p1').value=t.p1;
-  document.getElementById('team-edit-p2').value=t.p2;
-  document.getElementById('team-edit-hcp1').value=t.hcp1||0;
-  document.getElementById('team-edit-hcp2').value=t.hcp2||0;
-  openModal('team-edit-modal');
-};
-
-window.saveTeamEdit=async function(){
-  const id=document.getElementById('team-edit-id').value;
-  const name=document.getElementById('team-edit-name').value.trim();
-  const p1=document.getElementById('team-edit-p1').value.trim();
-  const p2=document.getElementById('team-edit-p2').value.trim();
-  const hcp1=parseFloat(document.getElementById('team-edit-hcp1').value)||0;
-  const hcp2=parseFloat(document.getElementById('team-edit-hcp2').value)||0;
-  if(!name||!p1||!p2){toast('Please fill in all fields.');return;}
-  // check name conflict (excluding self)
-  if(teams.find(t=>t.id!==id&&t.name.toLowerCase()===name.toLowerCase())){toast('Another team already has that name.');return;}
-  const existing=teams.find(t=>t.id===id);
-  if(!existing){toast('Team not found.');return;}
-  const updated={...existing,name,p1,p2,hcp1,hcp2,combinedHcp:hcp1+hcp2};
-  await saveTeam(updated);
-  closeModal('team-edit-modal');
-  toast(name+' updated!');
-};
-
-window.deleteTeam=async function(id){
-  const t=teams.find(x=>x.id===id);
-  if(!confirm(`Delete ${t?t.name:'this team'}? This will remove all their scores.`))return;
-  syncBar('syncing');
-  try{
-    await deleteDoc(doc(db,'teams',String(id)));
-    syncBar('synced');setTimeout(()=>syncBar(''),1500);
-    toast('Team deleted.');
-  }catch(e){syncBar('error');toast('Error deleting team.');}
+    await deleteDoc(doc(db,'teeTimes',String(id)));
+    syncBar('synced'); setTimeout(()=>syncBar(''),1500);
+    toast('Tee time deleted.');
+  }catch(e){ syncBar('error'); toast('Error deleting tee time.'); }
 };
 
 function renderTeeTimes(){
@@ -1345,6 +1167,110 @@ window.toast=function(msg){
   setTimeout(()=>el.classList.remove('show'),2800);
 };
 
+// ── CTP EDIT / DELETE ──
+window.openCTPEdit=function(id){
+  const e=ctpData.find(x=>x.id===id);
+  if(!e){toast('Entry not found.');return;}
+  document.getElementById('ctp-edit-id').value=e.id;
+  document.getElementById('ctp-edit-player').value=e.player;
+  document.getElementById('ctp-edit-team').value=e.team||'';
+  document.getElementById('ctp-edit-hole').value=e.hole;
+  document.getElementById('ctp-edit-dist').value=e.dist;
+  openModal('ctp-edit-modal');
+};
+window.saveCTPEdit=async function(){
+  const id=document.getElementById('ctp-edit-id').value;
+  const player=document.getElementById('ctp-edit-player').value.trim();
+  const team=document.getElementById('ctp-edit-team').value.trim();
+  const hole=document.getElementById('ctp-edit-hole').value;
+  const dist=parseFloat(document.getElementById('ctp-edit-dist').value);
+  if(!player||!hole||isNaN(dist)){toast('Please fill all fields.');return;}
+  await saveCTP({id,player,team,hole,dist});
+  closeModal('ctp-edit-modal');
+  toast('Entry updated.');
+};
+window.deleteCTP=async function(id){
+  if(!confirm('Delete this closest-to-pin entry?'))return;
+  syncBar('syncing');
+  try{
+    await deleteDoc(doc(db,'ctp',String(id)));
+    syncBar('synced');setTimeout(()=>syncBar(''),1500);
+    toast('Entry deleted.');
+  }catch(e){syncBar('error');toast('Error deleting entry.');}
+};
+
+// ── LONGEST DRIVE EDIT / DELETE ──
+window.openLDEdit=function(id){
+  const e=ldData.find(x=>x.id===id);
+  if(!e){toast('Entry not found.');return;}
+  document.getElementById('ld-edit-id').value=e.id;
+  document.getElementById('ld-edit-player').value=e.player;
+  document.getElementById('ld-edit-team').value=e.team||'';
+  document.getElementById('ld-edit-hole').value=e.hole;
+  document.getElementById('ld-edit-dist').value=e.dist;
+  openModal('ld-edit-modal');
+};
+window.saveLDEdit=async function(){
+  const id=document.getElementById('ld-edit-id').value;
+  const player=document.getElementById('ld-edit-player').value.trim();
+  const team=document.getElementById('ld-edit-team').value.trim();
+  const hole=document.getElementById('ld-edit-hole').value;
+  const dist=parseInt(document.getElementById('ld-edit-dist').value);
+  if(!player||!hole||isNaN(dist)){toast('Please fill all fields.');return;}
+  await saveLD({id,player,team,hole,dist});
+  closeModal('ld-edit-modal');
+  toast('Entry updated.');
+};
+window.deleteLD=async function(id){
+  if(!confirm('Delete this longest drive entry?'))return;
+  syncBar('syncing');
+  try{
+    await deleteDoc(doc(db,'ld',String(id)));
+    syncBar('synced');setTimeout(()=>syncBar(''),1500);
+    toast('Entry deleted.');
+  }catch(e){syncBar('error');toast('Error deleting entry.');}
+};
+
+// ── TEAM EDIT / DELETE ──
+window.openTeamEdit=function(id){
+  const t=teams.find(x=>x.id===id);
+  if(!t){toast('Team not found.');return;}
+  document.getElementById('team-edit-id').value=t.id;
+  document.getElementById('team-edit-name').value=t.name;
+  document.getElementById('team-edit-p1').value=t.p1;
+  document.getElementById('team-edit-p2').value=t.p2;
+  document.getElementById('team-edit-hcp1').value=t.hcp1||0;
+  document.getElementById('team-edit-hcp2').value=t.hcp2||0;
+  openModal('team-edit-modal');
+};
+window.saveTeamEdit=async function(){
+  const id=document.getElementById('team-edit-id').value;
+  const name=document.getElementById('team-edit-name').value.trim();
+  const p1=document.getElementById('team-edit-p1').value.trim();
+  const p2=document.getElementById('team-edit-p2').value.trim();
+  const hcp1=parseFloat(document.getElementById('team-edit-hcp1').value)||0;
+  const hcp2=parseFloat(document.getElementById('team-edit-hcp2').value)||0;
+  if(!name||!p1||!p2){toast('Please fill in all fields.');return;}
+  if(teams.find(t=>t.id!==id&&t.name.toLowerCase()===name.toLowerCase())){toast('Another team already has that name.');return;}
+  const existing=teams.find(t=>t.id===id);
+  if(!existing){toast('Team not found.');return;}
+  const updated={...existing,name,p1,p2,hcp1,hcp2,
+    combinedHcp:parseFloat((0.35*Math.min(hcp1,hcp2)+0.15*Math.max(hcp1,hcp2)).toFixed(1))};
+  await saveTeam(updated);
+  closeModal('team-edit-modal');
+  toast(name+' updated!');
+};
+window.deleteTeam=async function(id){
+  const t=teams.find(x=>x.id===id);
+  if(!confirm('Delete '+(t?t.name:'this team')+'? This will remove all their scores.'))return;
+  syncBar('syncing');
+  try{
+    await deleteDoc(doc(db,'teams',String(id)));
+    syncBar('synced');setTimeout(()=>syncBar(''),1500);
+    toast('Team deleted.');
+  }catch(e){syncBar('error');toast('Error deleting team.');}
+};
+
 // ── BOOT ──
 initListeners();
 setTimeout(()=>{
@@ -1354,5 +1280,87 @@ setTimeout(()=>{
 },1200);
 
 </script>
+<!-- CTP EDIT MODAL -->
+<div class="modal-overlay" id="ctp-edit-modal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <div><h3>Edit Entry</h3><div class="modal-sub-line">Closest to the Pin</div></div>
+      <button class="modal-close" onclick="closeModal('ctp-edit-modal')">&#10005;</button>
+    </div>
+    <input type="hidden" id="ctp-edit-id">
+    <div class="form-grid-2" style="margin-bottom:16px;">
+      <div class="form-group"><label>Player Name</label><input type="text" id="ctp-edit-player" placeholder="Full name"></div>
+      <div class="form-group"><label>Team</label><input type="text" id="ctp-edit-team" placeholder="Team name"></div>
+    </div>
+    <div class="form-grid-2" style="margin-bottom:20px;">
+      <div class="form-group"><label>Hole</label>
+        <select id="ctp-edit-hole"><option value="">Select hole</option><option value="4">Hole 4</option></select>
+      </div>
+      <div class="form-group"><label>Distance (ft)</label><input type="number" id="ctp-edit-dist" placeholder="e.g. 8.5" min="0" step="0.1"></div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="closeModal('ctp-edit-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveCTPEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- LONGEST DRIVE EDIT MODAL -->
+<div class="modal-overlay" id="ld-edit-modal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <div><h3>Edit Entry</h3><div class="modal-sub-line">Longest Drive</div></div>
+      <button class="modal-close" onclick="closeModal('ld-edit-modal')">&#10005;</button>
+    </div>
+    <input type="hidden" id="ld-edit-id">
+    <div class="form-grid-2" style="margin-bottom:16px;">
+      <div class="form-group"><label>Player Name</label><input type="text" id="ld-edit-player" placeholder="Full name"></div>
+      <div class="form-group"><label>Team</label><input type="text" id="ld-edit-team" placeholder="Team name"></div>
+    </div>
+    <div class="form-grid-2" style="margin-bottom:20px;">
+      <div class="form-group"><label>Hole</label>
+        <select id="ld-edit-hole">
+          <option value="">Select hole</option>
+          <option value="1">Hole 1</option><option value="2">Hole 2</option><option value="3">Hole 3</option>
+          <option value="4">Hole 4</option><option value="5">Hole 5</option><option value="6">Hole 6</option>
+          <option value="7">Hole 7</option><option value="8">Hole 8</option><option value="9">Hole 9</option>
+          <option value="10">Hole 10</option><option value="11">Hole 11</option><option value="12">Hole 12</option>
+          <option value="13">Hole 13</option><option value="14">Hole 14</option><option value="15">Hole 15</option>
+          <option value="16">Hole 16</option><option value="17">Hole 17</option><option value="18">Hole 18</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Distance (yds)</label><input type="number" id="ld-edit-dist" placeholder="e.g. 285" min="0"></div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="closeModal('ld-edit-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveLDEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- TEAM EDIT MODAL -->
+<div class="modal-overlay" id="team-edit-modal">
+  <div class="modal" style="max-width:540px;">
+    <div class="modal-header">
+      <div><h3>Edit Team</h3><div class="modal-sub-line">Update team name, players, or handicaps</div></div>
+      <button class="modal-close" onclick="closeModal('team-edit-modal')">&#10005;</button>
+    </div>
+    <input type="hidden" id="team-edit-id">
+    <div class="form-grid-3" style="margin-bottom:16px;">
+      <div class="form-group" style="grid-column:1/3;"><label>Team Name</label><input type="text" id="team-edit-name" placeholder="e.g. Team Eagles"></div>
+      <div class="form-group"><label>P1 Handicap</label><input type="number" id="team-edit-hcp1" placeholder="e.g. 14" min="0" max="54" step="0.1"></div>
+    </div>
+    <div class="form-grid-3" style="margin-bottom:20px;">
+      <div class="form-group"><label>Player 1 Name</label><input type="text" id="team-edit-p1" placeholder="Full name"></div>
+      <div class="form-group"><label>Player 2 Name</label><input type="text" id="team-edit-p2" placeholder="Full name"></div>
+      <div class="form-group"><label>P2 Handicap</label><input type="number" id="team-edit-hcp2" placeholder="e.g. 10" min="0" max="54" step="0.1"></div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="closeModal('team-edit-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveTeamEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
